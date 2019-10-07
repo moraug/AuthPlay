@@ -1,5 +1,7 @@
 package util
 
+import java.time.Clock
+
 import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtHeader, JwtJson}
 import play.api.libs.json.Json
 
@@ -9,10 +11,12 @@ class JwtUtil {
 
   val JwtSecretKey = "secretKey"
   val JwtSecretAlgo: JwtAlgorithm.HS256.type = JwtAlgorithm.HS256
+  implicit val clock: Clock = Clock.systemUTC
+
 
   def createToken(payload: String): String = {
     val header = JwtHeader(JwtSecretAlgo, "JWT")
-    val claim = JwtClaim(payload)
+    val claim = JwtClaim(payload).issuedNow.expiresIn(60)
     JwtJson.encode(header, claim, JwtSecretKey)
   }
 

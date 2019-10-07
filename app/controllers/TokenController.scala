@@ -2,8 +2,10 @@ package controllers
 
 import javax.inject._
 import play.api.data.Form
+import play.api.libs.json.Json
 import play.api.mvc._
 import util.JwtUtil
+import model.UserDao
 
 case class TokenFormInput(username: String, password: String)
 
@@ -28,15 +30,19 @@ class TokenController @Inject()(
       BadRequest(badForm.errorsAsJson)
     }
     val successFunction = { input: TokenFormInput =>
-      val token = getToken(input)
-      Ok(s"token: ${token}")
+      if (UserDao.validateUser(input.username, input.password)) {
+        val token = getToken(input)
+        Ok(s"token: ${token}")
+      } else {
+        Ok(s"Bad credentials")
+      }
     }
     val formValidationResult: Form[TokenFormInput] = formToken.bindFromRequest
     formValidationResult.fold(errorFunction, successFunction)
   }
 
   private def getToken(input: TokenFormInput): String = {
-    val inputString = s"${input.username}:${input.password}"
+    val inputString = Json.obj(("user", input.username),("password", input.password)).toString()
     util.createToken(inputString)
   }
 
