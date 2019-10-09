@@ -2,6 +2,7 @@ package util
 
 import java.time.Clock
 
+import com.typesafe.config.ConfigFactory
 import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtHeader, JwtJson}
 import play.api.libs.json.Json
 
@@ -9,7 +10,7 @@ import scala.util.{Failure, Success}
 
 class JwtUtil {
 
-  val JwtSecretKey = "secretKey"
+  val JwtSecretKey = ConfigFactory.load().getString("jwt.secretKey")
   val JwtSecretAlgo: JwtAlgorithm.HS256.type = JwtAlgorithm.HS256
   implicit val clock: Clock = Clock.systemUTC
 
